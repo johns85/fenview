@@ -1,0 +1,10 @@
+[package]
+name = "fenview"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Validate and render FEN chess position strings"
+
+[[bin]]
+name = "fenview"
+path = "src/main.rs"
