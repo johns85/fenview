@@ -63,4 +63,5 @@ and printing.
 
 Early skeleton. Piece placement, active color, castling rights, en
 passant target, halfmove clock, and fullmove number are all parsed and
-validated. See the roadmap for what's still missing.
+validated, including sanity checks that each side has exactly one king
+and that no pawn sits on the back rank.

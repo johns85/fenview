@@ -73,6 +73,8 @@ pub enum FenError {
     InvalidEnPassant(String),
     InvalidHalfmoveClock(String),
     InvalidFullmoveNumber(String),
+    InvalidKingCount { color: Color, count: usize },
+    PawnOnBackRank(usize),
 }
 
 impl fmt::Display for FenError {
@@ -98,6 +100,12 @@ impl fmt::Display for FenError {
             FenError::InvalidEnPassant(s) => write!(f, "invalid en passant square '{s}'"),
             FenError::InvalidHalfmoveClock(s) => write!(f, "invalid halfmove clock '{s}'"),
             FenError::InvalidFullmoveNumber(s) => write!(f, "invalid fullmove number '{s}'"),
+            FenError::InvalidKingCount { color, count } => {
+                write!(f, "expected exactly one {color} king, found {count}")
+            }
+            FenError::PawnOnBackRank(rank) => {
+                write!(f, "pawn cannot stand on back rank {rank}")
+            }
         }
     }
 }
@@ -111,6 +119,7 @@ pub fn parse(fen: &str) -> Result<Position, FenError> {
     }
 
     let board = parse_placement(fields[0])?;
+    validate_placement(&board)?;
     let active_color = parse_active_color(fields[1])?;
     let castling = parse_castling(fields[2])?;
     let en_passant = parse_en_passant(fields[3])?;
@@ -175,6 +184,41 @@ fn parse_placement(field: &str) -> Result<[[Option<char>; 8]; 8], FenError> {
         }
     }
     Ok(board)
+}
+
+/// Checks sanity constraints that a syntactically valid placement string can
+/// still violate: each side needs exactly one king, and pawns can't sit on
+/// the back rank (they promote before ever reaching it).
+fn validate_placement(board: &[[Option<char>; 8]; 8]) -> Result<(), FenError> {
+    let mut white_kings = 0usize;
+    let mut black_kings = 0usize;
+
+    for (rank_index, rank) in board.iter().enumerate() {
+        for square in rank {
+            match square {
+                Some('K') => white_kings += 1,
+                Some('k') => black_kings += 1,
+                Some('P') | Some('p') if rank_index == 0 || rank_index == 7 => {
+                    return Err(FenError::PawnOnBackRank(8 - rank_index));
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if white_kings != 1 {
+        return Err(FenError::InvalidKingCount {
+            color: Color::White,
+            count: white_kings,
+        });
+    }
+    if black_kings != 1 {
+        return Err(FenError::InvalidKingCount {
+            color: Color::Black,
+            count: black_kings,
+        });
+    }
+    Ok(())
 }
 
 fn parse_active_color(field: &str) -> Result<Color, FenError> {
