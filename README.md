@@ -42,6 +42,23 @@ Output for the starting position:
     halfmove clock: 0
     fullmove number: 1
 
+Pass `--compact` to draw pieces as unicode glyphs and print the remaining
+fields on a single line:
+
+    $ echo "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" | fenview --compact
+    == stdin:1 ==
+    rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
+      a b c d e f g h
+    8 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
+    7 ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟
+    6 · · · · · · · ·
+    5 · · · · · · · ·
+    4 · · · · ♙ · · ·
+    3 · · · · · · · ·
+    2 ♙ ♙ ♙ ♙ · ♙ ♙ ♙
+    1 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
+    black to move, castling KQkq, en passant e3, halfmove 0, move 1
+
 If a record is malformed, `fenview` reports the source and line number
 and keeps processing the rest of the input:
 
